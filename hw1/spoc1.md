@@ -90,4 +90,44 @@
 	return from interrupt, set pc, sp, may switch user/kernel mode;
 	if has pending interrupt, process the interrupt
 	
+	
+===
+#OS1 OS3部分
+
+##os1中的task1和task2的堆栈的起始和终止地址是什么？
+	
+	task1的起始地址为全局变量task1_stack的地址+48
+	
+##os1是如何实现任务切换的？
+
+	首先打开中断使能，执行task0，然后在每次timeout时会interrupt并且执行alltraps，
+	在alltraps中的trap中交换两个指针的值，具体做法在swtch：
+	也就是两种情况：
+		1.将task0_sp的内容改为sp的内容（下一条指令），然后sp内容改为task1_sp的内容
+		2.将task1_sp的内容改为sp的内容（下一条指令），然后sp内容改为task0_sp的内容
+		
+	于是顺序执行的时候，首先task0被timeout，触发中断，接着进行第一次swth交换：
+		首先task0_sp变为sp，此时sp内容为
+		
+		task0()
+		{
+		  while(current < 10) {
+		    write(1, "0", 1);
+		  }
+		  write(1,"task0 exit\n", 11);
+		  halt(0);
+		}
+		中的 write(1, "0", 1); 语句（因为current此时<10，所以一直执行该语句）
+		因此在交换后，sp指向了task1函数，也就开始输出1.直到下一次timeout中断，如此往复。
+		
+		
+##os3中的task1和task2的堆栈的起始和终止地址是什么？
+
+	
+##os3是如何实现任务切换的？
+
+	
+##os3的用户态task能够破坏内核态的系统吗？
+
+	
 		
