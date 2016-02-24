@@ -129,5 +129,19 @@
 	
 ##os3的用户态task能够破坏内核态的系统吗？
 
-	
+	可以
+	由trap函数的case判断语句可知道，如果syscall的类型不是S_write，则会造成panic；
+	或者中断不属于FSYS + USER/FTIMER/FTIMER + USER 也会造成panic
+	因此，我如果添加函数：
+	read() {asm(TRAP,S_read);}
+	并且调用，例如在task0中调用：
+	task0()
+		{
+		  while(current < 10)
+		    read();
+		    // write(1, "00", 2);
 		
+		  write(1,"task0 exit\n", 11);
+		  halt(0);
+		}
+	则会造成panic unknown syscall 的error，并且直接终止程序。		
