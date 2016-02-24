@@ -1,3 +1,4 @@
+#FUNCALL部分
 ##尝试用简单的xem调试代码：
 		
 	运行./xem -g funcall 
@@ -52,3 +53,41 @@
 	xem -v funcall 运行verbose模式，可以输出hdr数据中的值
 	找到bbs为8，所以从0800开始为数据段
 	找到entry为108，所以从109位往后0108开始为程序段
+	
+	
+————————————————————————————————————————————————————————————
+	
+#OS0部分
+
+##1.何处设置的中断使能？
+
+	在asm(STI);一句，此时将iena设置为1
+		
+
+##系统何时处于中断屏蔽状态？
+
+	在asm(STI);之前，也就是iena为0的时候
+	以及在em.c处理interrupt代码段的时候（也就是处理中断）
+
+##如果系统处于中断屏蔽状态，如何让其中断使能？
+	
+	1.执行STI操作（如上问）
+	2.在em.c文件中，分析代码，在case RTI:中，如果处于内核态且iena为0，ipend=0的时候，可以让其中断使能
+	
+	
+##系统产生中断后，CPU会做哪些事情？（在没有软件帮助的情况下）
+
+	在em.c中，
+		xpc = (int *)(ivec + tpc);
+    	goto fixpc;
+    可看到，cpu将会把xpc的值（栈顶指针）修改为偏移量为ivec的地址，在没有分页的情况下，就是ivec的值
+    而之前由
+    	    if (user) { usp = xsp; xsp = ssp; user = 0; tr = trk; tw = twk; trap |= USER; }
+	可以看出，如果是用户态，则先切换到内核态再进行之后操作
+    
+##CPU执行RTI指令的具体完成工作是哪些？
+	
+	return from interrupt, set pc, sp, may switch user/kernel mode;
+	if has pending interrupt, process the interrupt
+	
+		
