@@ -73,7 +73,13 @@
 
 brk是对heap进行空间分配，准备足够的空间
 
-mmap则是将分配的空间map到RAM（shared libraries）
+open是对一些库文件的打开操作
+
+access 查看当前进程是否可以打开对应地址的文件
+
+mprotect 用来修改一段指定内存区域的保护属性
+
+munmap, mmap则是将分配的空间map到RAM（shared libraries）
 
 最后，我们看到write被调用并且输出。
 
