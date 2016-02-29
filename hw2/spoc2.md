@@ -170,4 +170,75 @@ munmap, mmap则是将分配的空间map到RAM（shared libraries）
 
 
 
+---
+---
+===
+
+##3.5 ucore系统调用分析
+###1.ucore的系统调用中参数传递代码分析。
+	struct trapframe *tf = current->tf;
+    uint32_t arg[5];
+    int num = tf->tf_regs.reg_eax;
+    if (num >= 0 && num < NUM_SYSCALLS) {
+        if (syscalls[num] != NULL) {
+            arg[0] = tf->tf_regs.reg_edx;
+            arg[1] = tf->tf_regs.reg_ecx;
+            arg[2] = tf->tf_regs.reg_ebx;
+            arg[3] = tf->tf_regs.reg_edi;
+            arg[4] = tf->tf_regs.reg_esi;
+            tf->tf_regs.reg_eax = syscalls[num](arg);
+            return ;
+        }
+    }
+    print_trapframe(tf);
+    panic("undefined syscall %d, pid = %d, name = %s.\n",
+            num, current->pid, current->name);
+ 由上述代码可以看出，在每次系统调用时，通过从当前进程的中断帧trapframe的tf_regs里面存储的edi，esi，ebx，ecx，edx等寄存器值来获取参数。
+
+具体的把系统调用号放到EAX，其他5个参数a[0]~a[4]分别保存到EDX/ECX/EBX/EDI/ESI五个寄存器中，最多用6个寄存器来传递系统调用的参数，且系统调用的返回结果是EAX。
+###2.以getpid为例，分析ucore的系统调用中返回结果的传递代码。
+对于getpid他的系统调用号（SYS_getpid=18）保存在EAX中，返回值（调用此库函数的的当前进程号pid）也在EAX中。
+
+当用户进程调用getpid函数，最终执行到“INT T_SYSCALL”指令后，CPU根据操作系统建立的系统调用中断描述符，转入内核态，并跳转到vector128处（kern/trap/vectors.S），开始了操作系统的系统调用执行过程，函数调用和返回操作的关系如下所示：
+
+	vector128(vectors.S)--\>
+	\_\_alltraps(trapentry.S)--\>trap(trap.c)--\>trap\_dispatch(trap.c)--
+	--\>syscall(syscall.c)--\>sys\_getpid(syscall.c)--\>……--\>\_\_trapret(trapentry.S)
+在执行trap函数前，软件还需进一步保存执行系统调用前的执行现场，即把与用户进程继续执行所需的相关寄存器等当前内容保存到当前进程的中断帧trapframe中（注意，在创建进程是，把进程的trapframe放在给进程的内核栈分配的空间的顶部）。软件做的工作在vector128和__alltraps的起始部分：
+
+	vectors.S::vector128起始处:
+	  pushl $0
+	  pushl $128
+	......
+	trapentry.S::__alltraps起始处:
+	pushl %ds
+	  pushl %es
+	  pushal
+	……
+
+自此，用于保存用户态的用户进程执行现场的trapframe的内容填写完毕，操作系统可开始完成具体的系统调用服务。
+
+在sys_getpid函数中，简单地把当前进程的pid成员变量做为函数返回值就是一个具体的系统调用服务。完成服务后，操作系统按调用关系的路径原路返回到__alltraps中。然后操作系统开始根据当前进程的中断帧内容做恢复执行现场操作。其实就是把trapframe的一部分内容保存到寄存器内容。恢复寄存器内容结束后，调整内核堆栈指针到中断帧的tf_eip处，这是内核栈的结构如下：
+
+
+	/* below here defined by x86 hardware */
+    uintptr_t tf_eip;
+    uint16_t tf_cs;
+    uint16_t tf_padding3;
+    uint32_t tf_eflags;
+	/* below here only when crossing rings */
+    uintptr_t tf_esp;
+    uint16_t tf_ss;
+    uint16_t tf_padding4;
+
+这时执行“IRET”指令后，CPU根据内核栈的情况回复到用户态，并把EIP指向tf_eip的值，即“INT T_SYSCALL”后的那条指令。这样整个系统调用就执行完毕了。
+###3.以ucore lab8的answer为例，分析ucore 应用的系统调用编写和含义。
+首先初始化系统调用对应的中段描述符，在ucore初始化函数kern_init中调用了idt_init函数来初始化中断描述符表，并设置一个特定中断号的中断门，专门用于用户进程访问系统调用。此事由ide_init函数完成
+
+建立好这个中断描述符后，一旦用户进程执行“INT T_SYSCALL”后，由于此中断允许用户态进程产生（注意它的特权级设置为DPL_USER），所以CPU就会从用户态切换到内核态，保存相关寄存器，并跳转到__vectors[T_SYSCALL]处开始执行
+
+然后建立系统调用的用户库准备，为了简化应用程序访问系统调用的复杂性。为此在用户态建立了一个中间层来完成对访问系统调用的封装。用户态最终的访问系统调用函数是syscall，所以应用程序调用的exit/fork/wait/getpid等库函数最终都会调用syscall函数，只是调用的参数不同而已
+
+###4.以ucore lab8的answer为例，尝试修改并运行ucore OS kernel代码，使其具有类似Linux应用工具strace的功能，即能够显示出应用程序发出的系统调用，从而可以分析ucore应用的系统调用执行过程。
+
 		
