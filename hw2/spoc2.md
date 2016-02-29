@@ -240,5 +240,145 @@ munmap, mmap则是将分配的空间map到RAM（shared libraries）
 然后建立系统调用的用户库准备，为了简化应用程序访问系统调用的复杂性。为此在用户态建立了一个中间层来完成对访问系统调用的封装。用户态最终的访问系统调用函数是syscall，所以应用程序调用的exit/fork/wait/getpid等库函数最终都会调用syscall函数，只是调用的参数不同而已
 
 ###4.以ucore lab8的answer为例，尝试修改并运行ucore OS kernel代码，使其具有类似Linux应用工具strace的功能，即能够显示出应用程序发出的系统调用，从而可以分析ucore应用的系统调用执行过程。
+将lab8_result/kern/syscal/syscall.c修改如下：
 
-		
+添加函数printtrack用来打印系统函数的名称信息：
+	
+
+	void 
+	printtrack(int num){
+	    switch(num){
+	        case SYS_exit :
+	            cprintf("syscall: exit\n");
+	            break;
+	        case SYS_fork :
+	            cprintf("syscall: fork\n");
+	            break;
+	        case SYS_wait :
+	            cprintf("syscall: wait\n");
+	            break;
+	        case SYS_exec :
+	            cprintf("syscall: exec\n");
+	            break;
+	        case SYS_clone :
+	            cprintf("syscall: clone\n");
+	            break;
+	        case SYS_yield :
+	            cprintf("syscall: yield\n");
+	            break;
+	        case SYS_sleep :
+	            cprintf("syscall: sleep\n");
+	            break;
+	        case SYS_kill :
+	            cprintf("syscall: kill\n");
+	            break;
+	        case SYS_gettime :
+	            cprintf("syscall: gettime\n");
+	            break;
+	        case SYS_getpid :
+	            cprintf("syscall: getpid\n");
+	            break;
+	        case SYS_mmap :
+	            cprintf("syscall: mmap\n");
+	            break;
+	        case SYS_munmap :
+	            cprintf("syscall: munmap\n");
+	            break;
+	        case SYS_shmem :
+	            cprintf("syscall: shmem\n");
+	            break;
+	        case SYS_putc :
+	            cprintf("syscall: putc\n");
+	            break;
+	        case SYS_pgdir :
+	            cprintf("syscall: pgdir\n");
+	            break;
+	        case SYS_open :
+	            cprintf("syscall: open\n");
+	            break;
+	        case SYS_close :
+	            cprintf("syscall: close\n");
+	            break;
+	        case SYS_read :
+	            cprintf("syscall: read\n");
+	            break;
+	        case SYS_write :
+	            cprintf("syscall: write\n");
+	            break;
+	        case SYS_seek :
+	            cprintf("syscall: seek\n");
+	            break;
+	        case SYS_fstat :
+	            cprintf("syscall: fstat\n");
+	            break;
+	        case SYS_fsync :
+	            cprintf("syscall: fsync\n");
+	            break;
+	        case SYS_getcwd :
+	            cprintf("syscall: getcwd\n");
+	            break;
+	        case SYS_getdirentry :
+	            cprintf("syscall: getdirentry\n");
+	            break;
+	        case SYS_dup :
+	            cprintf("syscall: dup\n");
+	            break;
+	        case SYS_lab6_set_priority :
+	            cprintf("syscall: lab6_set_priority\n");
+	            break;
+	        default:
+	            cprintf("unknow syscall\n");
+	    }
+	}
+在syscall中，在判断if (syscalls[num] != NULL) 之后，添加语句
+
+	            printtrack(num);
+调用函数。执行 make qemu，可以得到系统调用的输出结果：
+
+	syscall: exec
+	syscall: open
+	syscall: open
+	syscall: write
+	usyscall: write
+	ssyscall: write
+	esyscall: write
+	rsyscall: write
+	 syscall: write
+	ssyscall: write
+	hsyscall: write
+	 syscall: write
+	isyscall: write
+	ssyscall: write
+	 syscall: write
+	rsyscall: write
+	usyscall: write
+	nsyscall: write
+	nsyscall: write
+	isyscall: write
+	nsyscall: write
+	gIter 1, No.0 philosopher_sema is eating
+	Iter 1, No.2 philosopher_sema is eating
+	phi_test_condvar: state_condvar[0] will eating
+	phi_test_condvar: signal self_cv[0] 
+	cond_signal begin: cvp c03569e0, cvp->count 0, cvp->owner->next_count 0
+	cond_signal end: cvp c03569e0, cvp->count 0, cvp->owner->next_count 0
+	Iter 1, No.0 philosopher_condvar is eating
+	phi_take_forks_condvar: 1 didn't get fork and will wait
+	cond_wait begin:  cvp c03569f4, cvp->count 0, cvp->owner->next_count 0
+	phi_test_condvar: state_condvar[2] will eating
+	phi_test_condvar: signal self_cv[2] 
+	cond_signal begin: cvp c0356a08, cvp->count 0, cvp->owner->next_count 0
+	cond_signal end: cvp c0356a08, cvp->count 0, cvp->owner->next_count 0
+	Iter 1, No.2 philosopher_condvar is eating
+	phi_take_forks_condvar: 3 didn't get fork and will wait
+	cond_wait begin:  cvp c0356a1c, cvp->count 0, cvp->owner->next_count 0
+	phi_take_forks_condvar: 4 didn't get fork and will wait
+	cond_wait begin:  cvp c0356a30, cvp->count 0, cvp->owner->next_count 0
+	syscall: write
+	!syscall: write
+	!syscall: write
+	!syscall: write
+	$syscall: write
+	 syscall: read
+	phi_test_condvar: state_condvar[4] will eating
+
