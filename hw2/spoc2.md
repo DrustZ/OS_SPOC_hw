@@ -1,15 +1,100 @@
 ##linux系统调用分析
 ###通过分析lab1_ex0了解Linux应用的系统调用编写和含义
 -	objdump命令：
--	反汇编可执行文件,把二进制或者可执行文件反编译为汇编文件
-
+	反汇编可执行文件,把二进制或者可执行文件反编译为汇编文件
+	
+	本题输出的汇编：
+	
+			.include "defines.h"
+		.data
+		hello:
+			.string "hello world\n"
+		
+		.globl	main
+		main:
+			movl	$SYS_write,%eax
+			movl	$STDOUT,%ebx
+			movl	$hello,%ecx
+			movl	$12,%edx
+			int	$0x80
+		
+			ret
+	
+	它通过调用SYS_write，把"hello world\n"输出（stout）屏幕。
+	
 -	nm:
--	打印可执行文件的程序段信息（符号信息，BSS，CS等）
-
+	打印可执行文件的程序段信息（符号信息，BSS，CS等）
+	
+	本题输出：
+	
+		00000002 a AF_INET
+		0804a040 B __bss_start
+		0804a040 b completed.6590
+		0804a014 D __data_start
+		0804a014 W data_start
+		08048330 t deregister_tm_clones
+		080483a0 t __do_global_dtors_aux
+		08049f0c t __do_global_dtors_aux_fini_array_entry
+		0804a018 D __dso_handle
+		08049f14 d _DYNAMIC
+		0804a040 D _edata
+		0804a044 B _end
+		08048464 T _fini
+		08048478 R _fp_hw
+		080483c0 t frame_dummy
+		08049f08 t __frame_dummy_init_array_entry
+		08048530 r __FRAME_END__
+		0804a000 d _GLOBAL_OFFSET_TABLE_
+		         w __gmon_start__
+		0804a01c d hello
+		08048294 T _init
+		08049f0c t __init_array_end
+		08049f08 t __init_array_start
+		0804847c R _IO_stdin_used
+		00000006 a IPPROTO_TCP
+		         w _ITM_deregisterTMCloneTable
+		         w _ITM_registerTMCloneTable
+		08049f10 d __JCR_END__
+		08049f10 d __JCR_LIST__
+		         w _Jv_RegisterClasses
+		08048460 T __libc_csu_fini
+		080483f0 T __libc_csu_init
+		         U __libc_start_main@@GLIBC_2.0
+		0804a029 D main
+		00000001 a MAP_SHARED
+		00000001 a PROT_READ
+		08048360 t register_tm_clones
+		00000002 a SEEK_END
+		00000001 a SOCK_STREAM
+		080482f0 T _start
+		00000001 a STDOUT
+		00000006 a SYS_close
+		0000003f a SYS_dup2
+		0000000b a SYS_execve
+		00000001 a SYS_exit
+		00000002 a SYS_fork
+		00000013 a SYS_lseek
+		0000005a a SYS_mmap
+		0000005b a SYS_munmap
+		00000005 a SYS_open
+		00000066 a SYS_socketcall
+		00000005 a SYS_socketcall_accept
+		00000002 a SYS_socketcall_bind
+		00000004 a SYS_socketcall_listen
+		00000001 a SYS_socketcall_socket
+		00000004 a SYS_write
+		0804a040 D __TMC_END__
+		08048320 T __x86.get_pc_thunk.bx
+	
 -	file:
 
 	file [-beLvz][-f <名称文件>][-m <魔法数字文件>...][文件或目录...] 
+	
 	通过file指令，我们得以辨识该文件的类型
+	
+	本题输出
+
+		lab1-ex0.exe: ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux.so.2, for GNU/Linux 2.6.32, BuildID[sha1]=ee322e8193a7d18b15891738abe7eaf4398217a3, not stripped
 
 系统调用的含义：
 
@@ -82,6 +167,7 @@ mprotect 用来修改一段指定内存区域的保护属性
 munmap, mmap则是将分配的空间map到RAM（shared libraries）
 
 最后，我们看到write被调用并且输出。
+
 
 
 		
