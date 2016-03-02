@@ -60,6 +60,8 @@ char *cmd;       // command name
 
 static int dbg;  // debugger enable flag
 static int prt;  // debugger print flag
+static uint badr;
+
 static char dbgbuf[0x200];
 
 static char *inst[] = {"HALT","ENT" ,"LEV","JMP","JMPI","JSR","JSRA","LEA","LEAG","CYC" ,"MCPY","MCMP","MCHR","MSET", // system
@@ -260,6 +262,12 @@ next:
 
     ir = *xpc++;
 
+    if (badr != 0 && ((uint)xpc - tpc) == badr){
+      printf("break point at %x", badr);
+      badr = 0;
+      dbg = 1;
+    }
+
     if (dbg) {
     again:
       switch(dbg_getcmd(dbgbuf)) {
@@ -283,6 +291,12 @@ next:
         else
           printf("\n[%8.8x]: %2.2x\n", u, *((unsigned char *)(u ^ (t & -2))));
         goto again;
+
+      case 'b':
+        if(sscanf(dbgbuf + 1, "%x", &badr) != 1)
+          printf("\nplease input break address");
+        goto again;
+
       case 'h':
       default:
         printf(DBG_HELP_STRING);
@@ -290,6 +304,7 @@ next:
       }
     }
 
+    //answer #2
     //print instruction and registers
     if (prt){
       printf("instruction: %s\n", inst[(uchar)ir-HALT]);
