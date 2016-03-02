@@ -6,6 +6,10 @@
 //
 // Written by Robert Swierczek
 
+//修改用法：[-p] 打印每条指令以及寄存器状态
+//在debug模式中，输入b+空格+地址 设置断点
+//在运行代码过程中，按下','逗号键以进入debug模式
+
 #include <u.h>
 #include <libc.h>
 #include <libm.h>
