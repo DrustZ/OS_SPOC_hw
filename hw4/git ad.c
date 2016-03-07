@@ -119,6 +119,36 @@ void * best_fit(size_t nunits){
     
 }
 
+
+void * worst_fit(size_t nunits){
+  Header *p, *prevp, *biggest, *biggestprev;
+  
+  biggestprev = prevp = freep;  
+  biggest = p = prevp->s.ptr;
+  
+  for(; ; prevp = p, p = p->s.ptr) {
+    
+    /* give the biggest element to the variable "biggest" */
+    if(p->s.size > biggest->s.size){
+      biggest = p;
+      biggestprev = prevp;
+      }
+    
+     /* wrapped around free list */
+       if(p == freep){
+
+        /* check if biggest is big enough, else give more core */ 
+        if(biggest->s.size >= nunits)                            /* big enough */
+              return returnblock(biggest,biggestprev,nunits);   
+         else 
+          if((p = morecore(nunits)) == NULL)
+          return NULL; 
+        
+       }
+
+  } 
+}
+
 void * malloc(size_t nbytes)
 {
   
@@ -135,5 +165,11 @@ void * malloc(size_t nbytes)
     base.s.size = 0;
   }
   
-  return best_fit(nunits);
+  return best_fit(nunits); //可以在这里更换策略
+}
+
+int main(){
+  int * n = (int *)malloc(sizeof(int));
+  free(n);
+  return 0;
 }
