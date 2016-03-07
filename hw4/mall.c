@@ -14,62 +14,47 @@ struct mem_control_block {
 
 void malloc_init()
 {
-    /* grab the last valid address from the OS */
+    /*  从OS 中获取当前虚拟地址 */
     last_valid_address = sbrk(0);
-    /* we don't have any memory to manage yet, so
-     *just set the beginning to be last_valid_address
+    /*
+     * 初始化当前的地址起点
      */
     managed_memory_start = last_valid_address;
-    /* Okay, we're initialized and ready to go */
+    /* 设置初始化完成的标记 */
     has_initialized = 1;
 }
 
 void free(void *firstbyte) {
     struct mem_control_block *mcb;
-    /* Backup from the given pointer to find the
-     * mem_control_block
-     */
+    /* 先把指针指向记录结构的起始 */
     mcb = (struct mem_control_block *)((char*)firstbyte - sizeof(struct mem_control_block));
-    /* Mark the block as being available */
+    /* 把当前块标记为可用 */
     mcb->is_available = 1;
-    /* That's It!  We're done. */
+    //结束
     return;
 }
 
 void *malloc(long numbytes) {
-    /* Holds where we are looking in memory */
+    /* 用来存储当前正查找的地址*/
     void *current_location;
-    /* This is the same as current_location, but cast to a
-     * memory_control_block
-     */
+    
     struct mem_control_block *current_location_mcb;
-    /* This is the memory location we will return.  It will
-     * be set to 0 until we find something suitable
-     */
+    /* 用来存储目标指针（也就是满足条件的地址）*/
     void *memory_location;
-    /* Initialize if we haven't already done so */
+    /* 保险 */
     if(! has_initialized)   {
         malloc_init();
     }
-    /* The memory we search for has to include the memory
-     * control block, but the users of malloc don't need
-     * to know this, so we'll just add it in for them.
-     */
+    /* 我们需要把记录结构的大小也计算进去 */
     numbytes = numbytes + sizeof(struct mem_control_block);
-    /* Set memory_location to 0 until we find a suitable
-     * location
-     */
+    /* 初始化 */
     memory_location = 0;
-    /* Begin searching at the start of managed memory */
     current_location = managed_memory_start;
-    /* Keep going until we have searched all allocated space */
     while(current_location != last_valid_address)
     {
-        /* current_location and current_location_mcb point
-         * to the same address.  However, current_location_mcb
-         * is of the correct type, so we can use it as a struct.
-         * current_location is a void pointer so we can use it
-         * to calculate addresses.
+        /* current_location 和 current_location_mcb 指向同一地址
+         * 但是current_location是用来计算地址的，
+         * 而current_location_mcb是用来表示struct的，可以直接使用
          */
         current_location_mcb =
             (struct mem_control_block *)current_location;
@@ -77,49 +62,29 @@ void *malloc(long numbytes) {
         {
             if(current_location_mcb->size >= numbytes)
             {
-                /* Woohoo!  We've found an open,
-                 * appropriately-size location.
-                 */
-                /* It is no longer available */
+                /* 找到了合适的 地址了，立刻把它占用 */
                 current_location_mcb->is_available = 0;
-                /* We own it */
                 memory_location = current_location;
-                /* Leave the loop */
                 break;
             }
         }
-        /* If we made it here, it's because the Current memory
-         * block not suitable; move to the next one
-         */
         current_location = (char*)current_location + current_location_mcb->size;
     }
-    /* If we still don't have a valid location, we'll
-     * have to ask the operating system for more memory
+    /* 如果未找到合适的，证明需要另开空间
      */
     if(! memory_location)
     {
-        /* Move the program break numbytes further */
         sbrk(numbytes);
-        /* The new memory will be where the last valid
-         * address left off
-         */
+        //把目标地址设置成最后可用的地址
         memory_location = last_valid_address;
-        /* We'll move the last valid address forward
-         * numbytes
-         */
         last_valid_address = (char*)last_valid_address + numbytes;
-        /* We need to initialize the mem_control_block */
+        //新分配 管理单元的 内存 并初始化
         current_location_mcb = (struct mem_control_block *)memory_location;
         current_location_mcb->is_available = 0;
         current_location_mcb->size = numbytes;
     }
-    /* Now, no matter what (well, except for error conditions),
-     * memory_location has the address of the memory, including
-     * the mem_control_block
-     */
-    /* Move the pointer past the mem_control_block */
+
     memory_location = (char*)memory_location + sizeof(struct mem_control_block);
-    /* Return the pointer */
     return memory_location;
  }
 
