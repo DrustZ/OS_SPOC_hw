@@ -7,3 +7,9 @@
 -	如果page table的offset为0，则相当于访问了两次page directory（第一次把它当做page table，第二次把它当做物理页page），然后就可以获得page directory的地址。
 
 -	这样的话，就可以通过虚拟地址来取得每个page table/directory的物理地址，从而修改其中的内容，达到快捷转变物理地址映射的效果。
+
+参考资源：
+
+<http://www.rohitab.com/discuss/topic/31139-tutorial-paging-memory-mapping-with-a-recursive-page-directory/>
+
+<http://www.thomasloven.com/blog/2012/06/Recursive-Page-Directory/>
