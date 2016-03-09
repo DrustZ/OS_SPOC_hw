@@ -3,7 +3,7 @@
 -	第一个：Virtual Address 6c74
 	
 		Virtual Address 6c74:
-		  --> pde index:0x1b  pde contents:(valid 1, pfn 0xa0, 物理地址0x400)
+		  --> pde index:0x1b  pde contents:(valid 1, pfn 0xa0)
 		    --> pte index:0xb  pte contents:(valid 0, pfn 0xe1)
 		      --> Translates to Physical Address 0x3 --> Value: 06
 	
