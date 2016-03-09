@@ -1,0 +1,17 @@
+##请回答下列虚地址是否有合法对应的物理内存，请给出对应的pde index, pde contents, pte index, pte contents
+
+-	第一个：Virtual Address 6c74
+	
+		Virtual Address 6c74:
+		  --> pde index:0x1b  pde contents:(valid 1, pfn 0xa0, 物理地址0x400)
+		    --> pte index:0xb  pte contents:(valid 0, pfn 0x7f)
+		      --> Fault (page table entry not valid)
+	
+-	Virtual Address 6b22
+	
+		Virtual Address 6b22:
+		  --> pde index:0x1a  pde contents:(valid 1, pfn 0xd2, 物理地址0xa40)
+		    --> pte index:0x19  pte contents:(valid 1, pfn 0xc7)
+		       --> Translates to Physical Address 0x8e0 --> Value: 0x1a = 26
+
+
