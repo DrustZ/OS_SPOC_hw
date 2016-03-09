@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 uint start = 0x11;
+int mem[128][32];
 
 int search(uint addr){
     //找到三个偏移量：pde pte physical 的偏移
@@ -40,6 +41,6 @@ int search(uint addr){
 }
 
 int main(){
-    search();
+    search(0x6c74);
     return 0;
 }
