@@ -138,7 +138,11 @@ alltraps()
 setup_user_paging()
 {
   //YOUR CODE: lec7-spoc challenge-part2
+  int i;
+  pg_tbl[0] = pg_dir+1024*16;
+  pg_dir[0x100] = (int)pg_tbl[0] | PTE_P | PTE_W ;
 
+  for (i=0;i<1024;i++) pg_tbl[0][i] = (i<<12) | PTE_P | PTE_W | PTE_U;  // trick to write all 4 contiguous pages
 }
   
 setup_kernel_paging()
@@ -203,7 +207,8 @@ main()
   pdir(pg_dir);
   // enable page
   spage(1);
-  
+  pg_dir = P2V+(uint)pg_dir;
+
   printf("kernel and user map...ok\n");
   
   printf("test kernel page fault read 1...\n");
