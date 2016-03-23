@@ -8,7 +8,7 @@
 
 list_entry_t pra_list_head;
 list_entry_t *pra_list_current = NULL;
-/* 我们使用Page 来作为clock的每一个节点，page结构体中，我添加了一个visit的bool量作为访问标记*/
+/* 我们使用Page 来作为clock的每一个节点，page结构体中，用对应的pte作为访问标记*/
 static int
 _clock_init_mm(struct mm_struct *mm)
 {     
@@ -29,8 +29,6 @@ _clock_map_swappable(struct mm_struct *mm, uintptr_t addr, struct Page *page, in
     assert(entry != NULL && head != NULL);
     //record the page access situlation
     /*LAB3 EXERCISE 2: YOUR CODE*/ 
-    //(1)link the most recent arrival page at the back of the pra_list_head qeueue.
-    page->visit = true;
     list_add(pra_list_current, entry);
     return 0;
 }
@@ -46,8 +44,9 @@ _clock_swap_out_victim(struct mm_struct *mm, struct Page ** ptr_page, int in_tic
      pra_list_current = pra_list_current->next;
      struct Page *pg = le2page(pra_list_current, pra_page_link);
      while(1){
-        if (pg->visit){
-            pg->visit = false;
+        pte_t *pte = get_pte(mm->pgdir, p->pra_vaddr, 0);
+        if ((*pte) & PTE_A){
+            (*pte) &= (~PTE_A);
             pra_list_current = pra_list_current->next;
             if (pra_list_current == &pra_list_head) pra_list_current = pra_list_head.next;
             pg = le2page(pra_list_current->next, pra_page_link);
