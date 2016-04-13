@@ -516,6 +516,7 @@ load_icode(unsigned char *binary, size_t size) {
         panic("load_icode: current->mm must be empty.\n");
     }
 
+    cprintf("In load_icode()\n", );
     int ret = -E_NO_MEM;
     struct mm_struct *mm;
     cprintf("\t1. set up new mm struct\n");
@@ -543,6 +544,7 @@ load_icode(unsigned char *binary, size_t size) {
     cprintf("\t3. map vaddr of program to memory.\n");
     uint32_t vm_flags, perm;
     struct proghdr *ph_end = ph + elf->e_phnum;
+    cprintf("\t3. after mapping, we can copy all contents to memeory.\n");
     for (; ph < ph_end; ph ++) {
     //(3.4) find every program section headers
         if (ph->p_type != ELF_PT_LOAD) {
@@ -570,7 +572,7 @@ load_icode(unsigned char *binary, size_t size) {
 
         ret = -E_NO_MEM;
 
-     cprintf("\t3. after mapping, we can copy all contents to memeory.\n");
+     
      //(3.6) alloc memory, and  copy the contents of every program section (from, from+end) to process's memory (la, la+end)
         end = ph->p_va + ph->p_filesz;
      //(3.6.1) copy TEXT/DATA section of bianry program
