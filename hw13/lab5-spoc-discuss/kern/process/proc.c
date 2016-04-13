@@ -516,7 +516,7 @@ load_icode(unsigned char *binary, size_t size) {
         panic("load_icode: current->mm must be empty.\n");
     }
 
-    cprintf("In load_icode()\n", );
+    cprintf("In load_icode()\n");
     int ret = -E_NO_MEM;
     struct mm_struct *mm;
     cprintf("\t1. set up new mm struct\n");
