@@ -7,7 +7,6 @@ int
 main(void) {
     int pid, code;
     cprintf("I am the parent %d. Forking the child...\n", getpid());
-    // panic("a b c\n");
     if ((pid = fork()) == 0) {
         cprintf("I am the child.\n");
         yield();

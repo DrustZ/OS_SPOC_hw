@@ -16,6 +16,17 @@ static int
 sys_fork(uint32_t arg[]) {
     struct trapframe *tf = current->tf;
     uintptr_t stack = tf->tf_esp;
+
+    uint32_t ebp = tf->tf_regs.reg_ebp, eip = tf->tf_eip;
+
+    cprintf("--- use call stack trace BEGIN  ---\n");
+    int i, j;
+    for (i = 0; i < 3; i ++) {
+        cprintf("ebp:0x%08x eip:0x%08x\n", ebp, eip);
+        eip = ((uint32_t *)ebp)[1];
+        ebp = ((uint32_t *)ebp)[0];
+    }
+    cprintf("--- use call stack trace END ---\n");
     return do_fork(0, stack, tf);
 }
 

@@ -7,6 +7,7 @@
 void
 __panic(const char *file, int line, const char *fmt, ...) {
     // print the 'message'
+
     va_list ap;
     va_start(ap, fmt);
     cprintf("user panic at %s:%d:\n    ", file, line);
