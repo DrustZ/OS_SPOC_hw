@@ -56,8 +56,35 @@ if options.solve == True:
     print '** Solutions **\n'
     if options.policy == 'SJF':
 		#YOUR CODE
-        joblist = sorted(joblist.items(), key=operator.itemgetter(1));
-    	
+        joblist = sorted(joblist, key=operator.itemgetter(1));
+        thetime = 0;
+        for tmp in joblist:
+            jobnum  = tmp[0]
+            runtime = tmp[1]
+            print '\n[ time\t%3d ] Run job %2d for %3.2f secs ( DONE at %3.2f )' % (thetime, jobnum, runtime, thetime+runtime)
+            thetime += runtime
+         
+        print '\nFinal statistics:'
+        t     = 0.0
+        count = 0
+        turnaroundSum = 0.0
+        waitSum       = 0.0
+        responseSum   = 0.0
+        for tmp in joblist:
+            jobnum  = tmp[0]
+            runtime = tmp[1]
+            
+            response   = t
+            turnaround = t + runtime
+            wait       = t
+            print '  Job %3d -- Response: %3.2f  Turnaround %3.2f  Wait %3.2f' % (jobnum, response, turnaround, wait)
+            responseSum   += response
+            turnaroundSum += turnaround
+            waitSum       += wait
+            t += runtime
+            count = count + 1
+        print '\n  Average -- Response: %3.2f  Turnaround %3.2f  Wait %3.2f\n' % (responseSum/count, turnaroundSum/count, waitSum/count)
+                     
     if options.policy == 'FIFO':
         thetime = 0
         print 'Execution trace:'
@@ -96,6 +123,8 @@ if options.solve == True:
         lastran = {}
         wait = {}
         quantum  = float(options.quantum)
+        if (quantum == 0):
+            quantum = 1.00
         jobcount = len(joblist)
         for i in range(0,jobcount):
             lastran[i] = 0.0
@@ -117,17 +146,20 @@ if options.solve == True:
                 response[jobnum] = thetime
             currwait = thetime - lastran[jobnum]
             wait[jobnum] += currwait
-            ranfor = 0
+            runfor = 0
             if runtime > quantum:
 				#YOUR CODE
-                print '  [ time %3d ] Run job %3d for %.2f secs' % (thetime, jobnum, ranfor)
+                runfor   = quantum
+                runtime -= quantum
+                print '  [ time %3d ] Run job %3d for %.2f secs' % (thetime, jobnum, runfor)
                 runlist.append([jobnum, runtime])
             else:
                 #YOUR CODE
-                print '  [ time %3d ] Run job %3d for %.2f secs ( DONE at %.2f )' % (thetime, jobnum, ranfor, thetime + ranfor)
-                turnaround[jobnum] = thetime + ranfor
+                runfor = runtime
+                print '  [ time %3d ] Run job %3d for %.2f secs ( DONE at %.2f )' % (thetime, jobnum, runfor, thetime + runfor)
+                turnaround[jobnum] = thetime + runfor
                 jobcount -= 1
-            thetime += ranfor
+            thetime += runfor
             lastran[jobnum] = thetime
 
         print '\nFinal statistics:'
