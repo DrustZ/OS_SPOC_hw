@@ -138,6 +138,7 @@ stride_pick_next(struct run_queue *rq) {
      if (p->lab6_priority == 0)
           p->lab6_stride += BIG_STRIDE;
      else p->lab6_stride += BIG_STRIDE / p->lab6_priority;
+     cprintf('\tIn pick_next, next stride:%d \n', p->lab6_stride);
      return p;
 }
 
@@ -153,12 +154,14 @@ static void
 stride_proc_tick(struct run_queue *rq, struct proc_struct *proc) {
      /* LAB6: YOUR CODE */
      cprintf('<> stride algorithm tick\n');
+     cprintf('\tproc slice before tick %d\n', proc->time_slice);
      if (proc->time_slice > 0) {
           proc->time_slice --;
      }
      if (proc->time_slice == 0) {
           proc->need_resched = 1;
      }
+     cprintf('\tproc slice after tick %d\n', proc->time_slice);
 }
 
 struct sched_class default_sched_class = {
