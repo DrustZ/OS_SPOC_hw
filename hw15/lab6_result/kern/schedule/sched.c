@@ -57,7 +57,7 @@ sched_init(void) {
 
 void
 wakeup_proc(struct proc_struct *proc) {
-    cprintf('wake up process, need to call ENQUEUE the proc\n');
+    cprintf("wake up process, need to call ENQUEUE the proc\n");
     assert(proc->state != PROC_ZOMBIE);
     bool intr_flag;
     local_intr_save(intr_flag);
@@ -78,7 +78,7 @@ wakeup_proc(struct proc_struct *proc) {
 
 void
 schedule(void) {
-    cprintf('schedule process, pick next, need to call DEQUEUE the proc\n');
+    cprintf("schedule process, pick next, need to call DEQUEUE the proc\n");
     bool intr_flag;
     struct proc_struct *next;
     local_intr_save(intr_flag);
