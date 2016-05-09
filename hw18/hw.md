@@ -8,6 +8,7 @@
 		
 	owner表示此条件变量的宿主是哪个管程。发出signal_cv的进程A会唤醒睡眠进程B，进程B执行会导致进程A睡眠，直到进程B离开管程，进程A才能继续执行，这个同步过程是通过信号量next完成的；而next_count表示了由于发出singal_cv而睡眠的进程个数。
 	
+	不会大于1。因为一旦进程A signal就会被wait的进程B接受，然后B进程最后会唤醒A，A于是继续执行，于是把next_count-1,所以是配对出现的。
 	不会小于0，因为对next_count的操作是成对出现的，先加后减。
 
 -	目前的lab7-answer中管程的实现是Hansen管程类型还是Hoare管程类型？请在lab7-answer中实现另外一种类型的管程。
