@@ -14,7 +14,7 @@ data          [(.,0) (..,0)] [] [] [] [] [] [] []
 
 Which operation took place?
 
-	- mkdir(g)
+	- mkdir()
 
 inode bitmap  11000000
 inodes        [d a:0 r:3] [d a:1 r:2] [] [] [] [] [] [] 
@@ -23,7 +23,7 @@ data          [(.,0) (..,0) (g,1)] [(.,1) (..,0)] [] [] [] [] [] []
 
 Which operation took place?
 
-	- create(q)
+	- create()
 
 inode bitmap  11100000
 inodes        [d a:0 r:4] [d a:1 r:2] [f a:-1 r:1] [] [] [] [] [] 
@@ -32,7 +32,7 @@ data          [(.,0) (..,0) (g,1) (q,2)] [(.,1) (..,0)] [] [] [] [] [] []
 
 Which operation took place?
 
-	- create(u)
+	- create()
 
 inode bitmap  11110000
 inodes        [d a:0 r:5] [d a:1 r:2] [f a:-1 r:1] [f a:-1 r:1] [] [] [] [] 
@@ -50,7 +50,7 @@ data          [(.,0) (..,0) (g,1) (q,2) (u,3) (x,3)] [(.,1) (..,0)] [] [] [] [] 
 
 Which operation took place?
 
-	- mkdir(t)
+	- mkdir()
 
 inode bitmap  11111000
 inodes        [d a:0 r:7] [d a:1 r:2] [f a:-1 r:1] [f a:-1 r:2] [d a:2 r:2] [] [] [] 
@@ -59,8 +59,7 @@ data          [(.,0) (..,0) (g,1) (q,2) (u,3) (x,3) (t,4)] [(.,1) (..,0)] [(.,4)
 
 Which operation took place?
 
-	- cd(g)
-	- create(c)
+	- create()
 
 inode bitmap  11111100
 inodes        [d a:0 r:7] [d a:1 r:3] [f a:-1 r:1] [f a:-1 r:2] [d a:2 r:2] [f a:-1 r:1] [] [] 
@@ -78,8 +77,7 @@ data          [(.,0) (..,0) (g,1) (q,2) (u,3) (t,4)] [(.,1) (..,0) (c,5)] [(.,4)
 
 Which operation took place?
 
-	- cd(g)
-	- mkdir(w)
+	- mkdir()
 
 inode bitmap  11111110
 inodes        [d a:0 r:6] [d a:1 r:4] [f a:-1 r:1] [f a:-1 r:1] [d a:2 r:2] [f a:-1 r:1] [d a:3 r:2] [] 
@@ -88,8 +86,7 @@ data          [(.,0) (..,0) (g,1) (q,2) (u,3) (t,4)] [(.,1) (..,0) (c,5) (w,6)] 
 
 Which operation took place?
 
-	- cd(g)
-	- fd = open(c) write(o) close(fd)
+	- doAppend（）
 
 inode bitmap  11111110
 inodes        [d a:0 r:6] [d a:1 r:4] [f a:-1 r:1] [f a:-1 r:1] [d a:2 r:2] [f a:4 r:1] [d a:3 r:2] [] 
@@ -98,7 +95,7 @@ data          [(.,0) (..,0) (g,1) (q,2) (u,3) (t,4)] [(.,1) (..,0) (c,5) (w,6)] 
 
 Which operation took place?
 
-	- create(n)
+	- create()
 
 inode bitmap  11111111
 inodes        [d a:0 r:7] [d a:1 r:4] [f a:-1 r:1] [f a:-1 r:1] [d a:2 r:2] [f a:4 r:1] [d a:3 r:2] [f a:-1 r:1] 
